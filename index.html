@@ -1,0 +1,1710 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KCSE 2025 Results Portal - Kenya Certificate of Secondary Education</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0c1a2d 0%, #152238 100%);
+            color: #ffffff;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+        
+        /* Loader Container */
+        .loader-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(135deg, #0c1a2d 0%, #152238 100%);
+            z-index: 1000;
+            transition: opacity 0.8s ease-in-out, transform 1s ease-in-out;
+        }
+        
+        /* KCSE Logo */
+        .loader-logo-container {
+            display: flex;
+            align-items: center;
+            transform: translateY(0);
+            margin-bottom: 4rem;
+        }
+        
+        .loader-logo {
+            font-size: 5rem;
+            font-weight: 800;
+            background: linear-gradient(90deg, #ff416c, #ff4b2b);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            letter-spacing: 2px;
+            text-shadow: 0 0 20px rgba(255, 65, 108, 0.3);
+        }
+        
+        /* Spinner Container */
+        .spinner-wrapper {
+            height: 200px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(20px);
+            transition: opacity 0.8s ease-out, transform 0.8s ease-out, visibility 0s 0.8s;
+        }
+        
+        .spinner-wrapper.active {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+            transition: opacity 0.8s ease-out, transform 0.8s ease-out, visibility 0s 0s;
+        }
+        
+        /* Spinner */
+        .spinner {
+            width: 120px;
+            height: 120px;
+            position: relative;
+            margin-bottom: 2rem;
+        }
+        
+        .spinner-ring {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            box-sizing: border-box;
+        }
+        
+        .ring-1 {
+            border: 4px solid transparent;
+            border-top: 4px solid #ff416c;
+            animation: spin1 1.5s linear infinite;
+        }
+        
+        .ring-2 {
+            border: 4px solid transparent;
+            border-right: 4px solid #ff4b2b;
+            animation: spin2 2s linear infinite;
+            width: 80%;
+            height: 80%;
+            top: 10%;
+            left: 10%;
+        }
+        
+        .ring-3 {
+            border: 4px solid transparent;
+            border-bottom: 4px solid #00d2ff;
+            animation: spin3 1.8s linear infinite;
+            width: 60%;
+            height: 60%;
+            top: 20%;
+            left: 20%;
+        }
+        
+        .spinner-center {
+            position: absolute;
+            width: 30%;
+            height: 30%;
+            top: 35%;
+            left: 35%;
+            background: rgba(255, 65, 108, 0.1);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        /* Loading Text */
+        .loading-text {
+            font-size: 1.4rem;
+            font-weight: 600;
+            color: #a8b2d1;
+            margin-top: 1.5rem;
+            letter-spacing: 1px;
+        }
+        
+        .loading-dots {
+            display: inline-block;
+            width: 80px;
+            text-align: left;
+        }
+        
+        .dot {
+            opacity: 0;
+            animation: dotAnimation 1.5s infinite;
+        }
+        
+        .dot:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+        
+        .dot:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+        
+        /* ============ MAIN PAGE ============ */
+        .main-page {
+            display: none;
+            position: relative;
+            min-height: 100vh;
+        }
+        
+        /* Background Picture for Main Page */
+        .main-page::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                linear-gradient(rgba(12, 26, 45, 0.85), rgba(12, 26, 45, 0.85)),
+                url('Screenshot 2026-01-02 232330.png') no-repeat center center;
+            background-size: cover;
+            background-attachment: fixed;
+            opacity: 0.7;
+            z-index: -1;
+            filter: brightness(0.6) contrast(1.1);
+        }
+        
+        /* Top Announcement Bar - PINNED & PIMPED */
+        .announcement-bar {
+            background: linear-gradient(90deg, 
+                #ff4b2b 0%, 
+                #ff416c 25%, 
+                #ff6b6b 50%, 
+                #ff416c 75%, 
+                #ff4b2b 100%);
+            padding: 0.8rem 2rem;
+            text-align: center;
+            color: white;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+            font-size: 1rem;
+            position: relative;
+            border-bottom: 3px solid rgba(255, 255, 255, 0.3);
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+            letter-spacing: 0.5px;
+            box-shadow: 0 4px 15px rgba(255, 75, 43, 0.3);
+            animation: announcementPulse 3s infinite;
+        }
+        
+        .announcement-icon {
+            font-size: 1.2rem;
+            animation: bounce 1s infinite alternate;
+        }
+        
+        .announcement-text {
+            background: rgba(0, 0, 0, 0.2);
+            padding: 0.5rem 1rem;
+            border-radius: 30px;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.2);
+        }
+        
+        .announcement-highlight {
+            color: #fffacd;
+            font-weight: 800;
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+        }
+        
+        /* Header Section */
+        .header {
+            background: linear-gradient(90deg, #1c2b4a 0%, #243b55 50%, #1c2b4a 100%);
+            padding: 1.2rem 2rem;
+            border-bottom: 3px solid #ff4b2b;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+        }
+        
+        /* Logo using image.png */
+        .header-logo-img {
+            width: 70px;
+            height: 70px;
+            object-fit: contain;
+            border-radius: 50%;
+            border: 3px solid #ff4b2b;
+            background: linear-gradient(45deg, #1c2b4a, #243b55);
+            padding: 5px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3),
+                        0 0 20px rgba(255, 75, 43, 0.4);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .header-logo-img:hover {
+            transform: rotate(5deg) scale(1.05);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4),
+                        0 0 30px rgba(255, 75, 43, 0.6);
+        }
+        
+        .header-text {
+            text-align: left;
+        }
+        
+        .header-title {
+            font-size: 1.8rem;
+            font-weight: 800;
+            letter-spacing: 1px;
+            color: white;
+            text-transform: uppercase;
+            margin-bottom: 0.2rem;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+        
+        .header-subtitle {
+            font-size: 1rem;
+            font-weight: 600;
+            color: #c8d6e5;
+            letter-spacing: 0.5px;
+        }
+        
+        .header-official {
+            font-size: 0.9rem;
+            color: #ff4b2b;
+            font-weight: 500;
+            margin-top: 0.2rem;
+        }
+        
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+        }
+        
+        /* Results Button */
+        .header-results-btn {
+            padding: 0.9rem 2rem;
+            font-size: 1.1rem;
+            font-weight: 800;
+            background: linear-gradient(90deg, #00d2ff, #3a7bd5);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 25px rgba(0, 210, 255, 0.4);
+            letter-spacing: 0.5px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            white-space: nowrap;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .header-results-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.6s;
+        }
+        
+        .header-results-btn:hover::before {
+            left: 100%;
+        }
+        
+        .header-results-btn:hover {
+            transform: translateY(-5px) scale(1.05);
+            box-shadow: 0 12px 30px rgba(0, 210, 255, 0.5);
+            background: linear-gradient(90deg, #3a7bd5, #00d2ff);
+        }
+        
+        .header-stats {
+            display: flex;
+            gap: 1rem;
+        }
+        
+        .header-stat {
+            text-align: center;
+            padding: 0.5rem 1rem;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+        }
+        
+        .header-stat:hover {
+            transform: translateY(-3px);
+            background: rgba(255, 255, 255, 0.15);
+            border-color: #ff4b2b;
+        }
+        
+        .header-stat-value {
+            font-size: 1.2rem;
+            font-weight: 800;
+            color: #ff4b2b;
+            text-shadow: 0 0 10px rgba(255, 75, 43, 0.5);
+        }
+        
+        .header-stat-label {
+            font-size: 0.75rem;
+            color: #c8d6e5;
+            margin-top: 0.2rem;
+        }
+        
+        /* Navigation */
+        .navigation {
+            background: rgba(28, 43, 74, 0.95);
+            padding: 0.9rem 2rem;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+        }
+        
+        .nav-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .nav-links {
+            display: flex;
+            gap: 1rem;
+            list-style: none;
+        }
+        
+        .nav-link {
+            color: #a8b2d1;
+            text-decoration: none;
+            font-weight: 600;
+            padding: 0.6rem 1.2rem;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.95rem;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .nav-link::before {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: #ff416c;
+            transition: width 0.3s ease;
+        }
+        
+        .nav-link:hover::before, .nav-link.active::before {
+            width: 100%;
+        }
+        
+        .nav-link:hover, .nav-link.active {
+            background: rgba(255, 65, 108, 0.15);
+            color: #ff416c;
+            transform: translateY(-2px);
+        }
+        
+        .quick-actions {
+            display: flex;
+            gap: 0.8rem;
+        }
+        
+        .action-btn {
+            padding: 0.6rem 1.2rem;
+            background: rgba(255, 75, 43, 0.2);
+            border: 2px solid #ff4b2b;
+            color: #ff6b6b;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+        }
+        
+        .action-btn:hover {
+            background: rgba(255, 75, 43, 0.4);
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 0 5px 15px rgba(255, 75, 43, 0.3);
+        }
+        
+        /* Main Container */
+        .main-container {
+            max-width: 1400px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+            display: grid;
+            grid-template-columns: 1fr 1.2fr;
+            gap: 2.5rem;
+            position: relative;
+            min-height: 70vh;
+        }
+        
+        /* Columns */
+        .left-column, .right-column {
+            position: relative;
+            z-index: 1;
+        }
+        
+        /* Dashboard Cards */
+        .dashboard-cards {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .dashboard-card {
+            background: rgba(28, 43, 74, 0.9);
+            border-radius: 15px;
+            padding: 1.5rem;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 
+                0 10px 40px rgba(0, 0, 0, 0.5),
+                inset 0 1px 0 rgba(255, 255, 255, 0.15);
+            transition: all 0.4s ease;
+            backdrop-filter: blur(15px);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .dashboard-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, transparent, currentColor, transparent);
+            opacity: 0.5;
+        }
+        
+        .dashboard-card:hover {
+            transform: translateY(-8px) scale(1.02);
+            background: rgba(28, 43, 74, 0.95);
+            border-color: rgba(255, 255, 255, 0.3);
+            box-shadow: 
+                0 15px 50px rgba(0, 0, 0, 0.6),
+                inset 0 1px 0 rgba(255, 255, 255, 0.25);
+        }
+        
+        .card-red { border-top: 4px solid #ff416c; }
+        .card-blue { border-top: 4px solid #00d2ff; }
+        .card-orange { border-top: 4px solid #ff4b2b; }
+        .card-purple { border-top: 4px solid #8a2be2; }
+        
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+        
+        .card-icon {
+            font-size: 1.5rem;
+            padding: 0.7rem;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.15);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .card-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #f1f2f6;
+            margin-bottom: 0.5rem;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.6);
+        }
+        
+        .card-value {
+            font-size: 2rem;
+            font-weight: 800;
+            margin-bottom: 0.5rem;
+            text-shadow: 2px 2px 6px rgba(0, 0, 0, 0.8);
+            background: linear-gradient(90deg, #f1f2f6, #a8b2d1);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        
+        .card-trend {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+            font-weight: 600;
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5);
+        }
+        
+        .trend-up { color: #00d2ff; }
+        .trend-down { color: #ff416c; }
+        
+        /* KCSE Info Section */
+        .info-section {
+            background: rgba(28, 43, 74, 0.9);
+            border-radius: 15px;
+            padding: 2rem;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            position: relative;
+            overflow: hidden;
+            box-shadow: 
+                0 10px 40px rgba(0, 0, 0, 0.5),
+                inset 0 1px 0 rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(15px);
+            transition: all 0.4s ease;
+        }
+        
+        .info-section:hover {
+            transform: translateY(-5px);
+            background: rgba(28, 43, 74, 0.95);
+            border-color: rgba(255, 255, 255, 0.3);
+            box-shadow: 
+                0 15px 50px rgba(0, 0, 0, 0.6),
+                inset 0 1px 0 rgba(255, 255, 255, 0.25);
+        }
+        
+        .section-title {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #ff4b2b;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-shadow: 2px 2px 6px rgba(0, 0, 0, 0.8);
+        }
+        
+        .info-list {
+            list-style: none;
+            margin-bottom: 1.5rem;
+        }
+        
+        .info-item {
+            padding: 1rem 0;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.15);
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+            transition: transform 0.3s ease;
+        }
+        
+        .info-item:hover {
+            transform: translateX(5px);
+        }
+        
+        .info-item:last-child {
+            border-bottom: none;
+        }
+        
+        .info-icon {
+            color: #ff416c;
+            font-size: 1.3rem;
+            margin-top: 3px;
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.6);
+            filter: drop-shadow(1px 1px 2px rgba(0, 0, 0, 0.6));
+        }
+        
+        .info-content h4 {
+            color: #f1f2f6;
+            font-size: 1.2rem;
+            margin-bottom: 0.5rem;
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.6);
+        }
+        
+        .info-content p {
+            color: #e8edf7;
+            line-height: 1.6;
+            font-size: 1rem;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+        }
+        
+        /* Results Dialog */
+        .results-dialog {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.4s ease;
+        }
+        
+        .results-dialog.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        .dialog-content {
+            background: linear-gradient(135deg, #0c1a2d 0%, #152238 100%);
+            border-radius: 20px;
+            width: 90%;
+            max-width: 500px;
+            padding: 2.5rem;
+            box-shadow: 
+                0 25px 70px rgba(0, 0, 0, 0.6),
+                0 0 0 1px rgba(255, 75, 43, 0.3);
+            border: 3px solid #ff4b2b;
+            transform: translateY(30px) scale(0.95);
+            transition: transform 0.4s ease;
+            position: relative;
+        }
+        
+        .results-dialog.active .dialog-content {
+            transform: translateY(0) scale(1);
+        }
+        
+        .dialog-close {
+            position: absolute;
+            top: 1.2rem;
+            right: 1.2rem;
+            background: none;
+            border: none;
+            color: #a8b2d1;
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .dialog-close:hover {
+            color: #ff416c;
+            background: rgba(255, 65, 108, 0.1);
+            transform: rotate(90deg);
+        }
+        
+        .dialog-title {
+            font-size: 2rem;
+            color: #ff4b2b;
+            font-weight: 800;
+            margin-bottom: 0.5rem;
+            text-align: center;
+            text-shadow: 0 2px 10px rgba(255, 75, 43, 0.3);
+        }
+        
+        .dialog-subtitle {
+            color: #a8b2d1;
+            text-align: center;
+            margin-bottom: 2rem;
+            font-size: 1rem;
+            line-height: 1.5;
+        }
+        
+        .dialog-form {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+        
+        .dialog-input {
+            padding: 1.2rem 1.5rem;
+            background: rgba(12, 26, 45, 0.8);
+            border: 2px solid #2a3f5f;
+            border-radius: 12px;
+            color: white;
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+        }
+        
+        .dialog-input:focus {
+            outline: none;
+            border-color: #ff416c;
+            box-shadow: 0 0 0 4px rgba(255, 65, 108, 0.2);
+            background: rgba(12, 26, 45, 0.9);
+        }
+        
+        .dialog-button {
+            padding: 1.2rem;
+            background: linear-gradient(90deg, #00d2ff, #3a7bd5);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 1.2rem;
+            font-weight: 800;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 0.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .dialog-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transition: left 0.6s;
+        }
+        
+        .dialog-button:hover::before {
+            left: 100%;
+        }
+        
+        .dialog-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 30px rgba(0, 210, 255, 0.4);
+            background: linear-gradient(90deg, #3a7bd5, #00d2ff);
+        }
+        
+        /* USSD Code Display */
+        .ussd-container {
+            text-align: center;
+            padding: 1.5rem 0;
+        }
+        
+        .ussd-title {
+            color: #ff4b2b;
+            font-size: 1.8rem;
+            font-weight: 800;
+            margin-bottom: 1.5rem;
+            text-shadow: 0 2px 10px rgba(255, 75, 43, 0.3);
+        }
+        
+        .ussd-instruction {
+            color: #a8b2d1;
+            margin-bottom: 2rem;
+            font-size: 1.1rem;
+            line-height: 1.6;
+        }
+        
+        .ussd-code-display {
+            background: linear-gradient(135deg, rgba(0, 0, 0, 0.6), rgba(40, 40, 40, 0.8));
+            border-radius: 15px;
+            padding: 2rem;
+            margin: 2rem 0;
+            display: inline-block;
+            border: 3px solid #00d2ff;
+            box-shadow: 
+                0 10px 30px rgba(0, 210, 255, 0.3),
+                inset 0 0 20px rgba(0, 210, 255, 0.1);
+        }
+        
+        .ussd-code-text {
+            font-size: 3rem;
+            font-weight: 900;
+            color: #ff6b6b;
+            letter-spacing: 3px;
+            animation: ussdGlow 2s infinite;
+            text-shadow: 0 0 20px rgba(255, 107, 107, 0.7);
+        }
+        
+        .ussd-dial-button {
+            padding: 1.2rem 2.5rem;
+            background: linear-gradient(90deg, #00d2ff, #3a7bd5);
+            color: white;
+            border: none;
+            border-radius: 15px;
+            font-size: 1.3rem;
+            font-weight: 800;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 2rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 15px;
+            text-decoration: none;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .ussd-dial-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transition: left 0.6s;
+        }
+        
+        .ussd-dial-button:hover::before {
+            left: 100%;
+        }
+        
+        .ussd-dial-button:hover {
+            transform: translateY(-5px) scale(1.05);
+            box-shadow: 0 15px 35px rgba(0, 210, 255, 0.4);
+            background: linear-gradient(90deg, #3a7bd5, #00d2ff);
+        }
+        
+        .ussd-note {
+            background: rgba(255, 75, 43, 0.15);
+            border-left: 5px solid #ff4b2b;
+            padding: 1.2rem;
+            border-radius: 10px;
+            margin-top: 2rem;
+            text-align: left;
+            backdrop-filter: blur(10px);
+        }
+        
+        .ussd-note-text {
+            color: #a8b2d1;
+            font-size: 0.9rem;
+            line-height: 1.6;
+        }
+        
+        .student-info-display {
+            background: rgba(28, 43, 74, 0.6);
+            border-radius: 15px;
+            padding: 1.8rem;
+            margin-bottom: 2rem;
+            text-align: left;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .student-info-item {
+            margin-bottom: 1rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .student-info-item:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+        
+        .student-info-label {
+            color: #a8b2d1;
+            font-size: 0.95rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .student-info-value {
+            color: #f1f2f6;
+            font-weight: 700;
+            font-size: 1.3rem;
+        }
+        
+        /* Contact Information Box */
+        .contact-box {
+            margin-top: 2rem;
+            background: rgba(28, 43, 74, 0.9);
+            border-radius: 15px;
+            padding: 1.8rem;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 
+                0 10px 40px rgba(0, 0, 0, 0.5),
+                inset 0 1px 0 rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(15px);
+            transition: all 0.4s ease;
+        }
+        
+        .contact-box:hover {
+            transform: translateY(-5px);
+            background: rgba(28, 43, 74, 0.95);
+            border-color: rgba(255, 255, 255, 0.3);
+        }
+        
+        /* Footer */
+        .footer {
+            background: rgba(12, 26, 45, 0.95);
+            padding: 2rem 2rem;
+            text-align: center;
+            margin-top: 3rem;
+            border-top: 2px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+        }
+        
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin-top: 1.5rem;
+            flex-wrap: wrap;
+        }
+        
+        .footer-link {
+            color: #a8b2d1;
+            text-decoration: none;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+        }
+        
+        .footer-link:hover {
+            color: #ff416c;
+            background: rgba(255, 65, 108, 0.1);
+            transform: translateY(-2px);
+        }
+        
+        /* Animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        @keyframes spin1 {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        @keyframes spin2 {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        @keyframes spin3 {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        @keyframes dotAnimation {
+            0% { opacity: 0; }
+            50% { opacity: 1; }
+            100% { opacity: 0; }
+        }
+        
+        @keyframes announcementPulse {
+            0%, 100% { 
+                box-shadow: 0 4px 15px rgba(255, 75, 43, 0.3);
+            }
+            50% { 
+                box-shadow: 0 4px 25px rgba(255, 75, 43, 0.5);
+            }
+        }
+        
+        @keyframes bounce {
+            from { transform: translateY(0); }
+            to { transform: translateY(-5px); }
+        }
+        
+        @keyframes ussdGlow {
+            0%, 100% { 
+                text-shadow: 0 0 15px rgba(255, 107, 107, 0.6),
+                           0 0 30px rgba(255, 107, 107, 0.3);
+            }
+            50% { 
+                text-shadow: 0 0 25px rgba(255, 107, 107, 0.9),
+                           0 0 45px rgba(255, 107, 107, 0.6),
+                           0 0 60px rgba(255, 107, 107, 0.3);
+            }
+        }
+        
+        /* Responsive Design */
+        @media (max-width: 1200px) {
+            .main-container {
+                grid-template-columns: 1fr;
+                gap: 2rem;
+            }
+            
+            .header-content {
+                flex-direction: column;
+                gap: 1.5rem;
+                text-align: center;
+            }
+            
+            .header-stats {
+                justify-content: center;
+                flex-wrap: wrap;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .loader-logo {
+                font-size: 3.5rem;
+            }
+            
+            .spinner {
+                width: 100px;
+                height: 100px;
+            }
+            
+            .dashboard-cards {
+                grid-template-columns: 1fr;
+            }
+            
+            .header-left {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .header-title {
+                font-size: 1.5rem;
+            }
+            
+            .header-results-btn {
+                padding: 0.7rem 1.5rem;
+                font-size: 1rem;
+            }
+            
+            .nav-links {
+                display: none;
+            }
+            
+            .main-container {
+                padding: 0 1rem;
+            }
+            
+            .dialog-content {
+                padding: 1.8rem;
+                width: 95%;
+            }
+            
+            .ussd-code-text {
+                font-size: 2.2rem;
+            }
+            
+            .footer-links {
+                flex-direction: column;
+                gap: 1rem;
+            }
+            
+            .announcement-bar {
+                flex-direction: column;
+                gap: 0.5rem;
+                padding: 1rem;
+                font-size: 0.9rem;
+            }
+            
+            .announcement-text {
+                padding: 0.3rem 0.8rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Loader -->
+    <div class="loader-container" id="loaderContainer">
+        <div class="loader-logo-container">
+            <div class="loader-logo">KCSE</div>
+        </div>
+        
+        <div class="spinner-wrapper" id="spinnerWrapper">
+            <div class="spinner">
+                <div class="spinner-ring ring-1"></div>
+                <div class="spinner-ring ring-2"></div>
+                <div class="spinner-ring ring-3"></div>
+                <div class="spinner-center">
+                    <i class="fas fa-graduation-cap" style="color: #ff416c; font-size: 1.2rem;"></i>
+                </div>
+            </div>
+            
+            <div class="loading-text">
+                Loading KCSE 2025 Results System<span class="loading-dots">
+                    <span class="dot">.</span>
+                    <span class="dot">.</span>
+                    <span class="dot">.</span>
+                </span>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Main Page -->
+    <div class="main-page" id="mainPage">
+        <!-- PIMPED Announcement Bar -->
+        <div class="announcement-bar">
+            <i class="fas fa-exclamation-circle announcement-icon"></i>
+            <div class="announcement-text">
+                <span class="announcement-highlight">⚠️ IMPORTANT NOTICE:</span> 
+                You may experience <span class="announcement-highlight">TEMPORARY DELAYS</span> while accessing results due to high traffic. 
+                <span class="announcement-highlight">PLEASE REMAIN PATIENT</span> or try again shortly.
+            </div>
+            <i class="fas fa-exclamation-circle announcement-icon"></i>
+        </div>
+        
+        <!-- Header -->
+        <header class="header">
+            <div class="header-content">
+                <div class="header-left">
+                    <img src="Screenshot 2026-01-02 232330.png" alt="KCSE Logo" class="header-logo-img">
+                    <div class="header-text">
+                        <h1 class="header-title">KENYA CERTIFICATE OF SECONDARY EDUCATION</h1>
+                        <p class="header-subtitle">KENYA NATIONAL EXAMINATIONS COUNCIL | OFFICIAL PORTAL</p>
+                        <p class="header-official">2025 Examination Results Verification System</p>
+                    </div>
+                </div>
+                <div class="header-right">
+                    <div class="header-stats">
+                        <div class="header-stat">
+                            <div class="header-stat-value">899,453</div>
+                            <div class="header-stat-label">2025 Candidates</div>
+                        </div>
+                        <div class="header-stat">
+                            <div class="header-stat-value">*811*842#</div>
+                            <div class="header-stat-label">USSD Code</div>
+                        </div>
+                    </div>
+                    <button class="header-results-btn" id="headerResultsBtn">
+                        <i class="fas fa-poll"></i> CHECK RESULTS
+                    </button>
+                </div>
+            </div>
+        </header>
+        
+        <!-- Navigation -->
+        <nav class="navigation">
+            <div class="nav-container">
+                <ul class="nav-links">
+                    <li><a href="#" class="nav-link active"><i class="fas fa-home"></i> Dashboard</a></li>
+                    <li><a href="#" class="nav-link"><i class="fas fa-poll"></i> Results Portal</a></li>
+                    <li><a href="#" class="nav-link"><i class="fas fa-calendar-alt"></i> Examination Calendar</a></li>
+                    <li><a href="#" class="nav-link"><i class="fas fa-school"></i> Secondary Schools</a></li>
+                    <li><a href="#" class="nav-link"><i class="fas fa-chart-bar"></i> Performance Statistics</a></li>
+                    <li><a href="#" class="nav-link"><i class="fas fa-question-circle"></i> Support & FAQ</a></li>
+                </ul>
+                <div class="quick-actions">
+                    <button class="action-btn"><i class="fas fa-download"></i> Past Papers</button>
+                    <button class="action-btn"><i class="fas fa-bell"></i> Notifications</button>
+                </div>
+            </div>
+        </nav>
+        
+        <!-- Main Content -->
+        <main class="main-container">
+            <div class="left-column">
+                <div class="dashboard-cards">
+                    <div class="dashboard-card card-red">
+                        <div class="card-header">
+                            <div>
+                                <div class="card-title">2025 KCSE Candidates</div>
+                                <div class="card-value">899,453</div>
+                            </div>
+                            <div class="card-icon">
+                                <i class="fas fa-user-graduate"></i>
+                            </div>
+                        </div>
+                        <div class="card-trend trend-up">
+                            <i class="fas fa-arrow-up"></i>
+                            <span>2.3% increase</span>
+                        </div>
+                    </div>
+                    
+                    <div class="dashboard-card card-blue">
+                        <div class="card-header">
+                            <div>
+                                <div class="card-title">Results Accessed</div>
+                                <div class="card-value">623,187</div>
+                            </div>
+                            <div class="card-icon">
+                                <i class="fas fa-poll"></i>
+                            </div>
+                        </div>
+                        <div class="card-trend trend-up">
+                            <i class="fas fa-arrow-up"></i>
+                            <span>68% today</span>
+                        </div>
+                    </div>
+                    
+                    <div class="dashboard-card card-orange">
+                        <div class="card-header">
+                            <div>
+                                <div class="card-title">USSD Verification</div>
+                                <div class="card-value">*811*842#</div>
+                            </div>
+                            <div class="card-icon">
+                                <i class="fas fa-mobile-alt"></i>
+                            </div>
+                        </div>
+                        <div class="card-trend trend-up">
+                            <i class="fas fa-arrow-up"></i>
+                            <span>Active Nationwide</span>
+                        </div>
+                    </div>
+                    
+                    <div class="dashboard-card card-purple">
+                        <div class="card-header">
+                            <div>
+                                <div class="card-title">Subjects Offered</div>
+                                <div class="card-value">30+</div>
+                            </div>
+                            <div class="card-icon">
+                                <i class="fas fa-book"></i>
+                            </div>
+                        </div>
+                        <div class="card-trend trend-up">
+                            <i class="fas fa-arrow-up"></i>
+                            <span>Updated 2025</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <section class="info-section">
+                    <h2 class="section-title">
+                        <i class="fas fa-info-circle"></i> How to Check KCSE Results
+                    </h2>
+                    
+                    <ul class="info-list">
+                        <li class="info-item">
+                            <i class="fas fa-mouse-pointer info-icon"></i>
+                            <div class="info-content">
+                                <h4>Step 1: Click "Check Results" Button</h4>
+                                <p>Click the blue "Check Results" button in the top right corner of this portal.</p>
+                            </div>
+                        </li>
+                        
+                        <li class="info-item">
+                            <i class="fas fa-user-edit info-icon"></i>
+                            <div class="info-content">
+                                <h4>Step 2: Enter Your Examination Details</h4>
+                                <p>Enter your full name and KCSE index number in the verification form.</p>
+                            </div>
+                        </li>
+                        
+                        <li class="info-item">
+                            <i class="fas fa-sms info-icon"></i>
+                            <div class="info-content">
+                                <h4>Step 3: Get USSD Verification Code</h4>
+                                <p>You will receive USSD code (*811*842#) to use on your mobile phone for secure verification.</p>
+                            </div>
+                        </li>
+                        
+                        <li class="info-item">
+                            <i class="fas fa-phone info-icon"></i>
+                            <div class="info-content">
+                                <h4>Step 4: Dial & Access Results</h4>
+                                <p>Dial *811*842# on your phone to complete verification and access your KCSE grades.</p>
+                            </div>
+                        </li>
+                    </ul>
+                </section>
+            </div>
+            
+            <div class="right-column">
+                <section class="info-section" style="border-left: 5px solid #00d2ff;">
+                    <h2 class="section-title" style="color: #00d2ff;">
+                        <i class="fas fa-question-circle"></i> Frequently Asked Questions
+                    </h2>
+                    
+                    <ul class="info-list">
+                        <li class="info-item">
+                            <i class="fas fa-question info-icon"></i>
+                            <div class="info-content">
+                                <h4>What information do I need to check my KCSE results?</h4>
+                                <p>You need your full name as registered during KCSE and your index number. The system will guide you through verification.</p>
+                            </div>
+                        </li>
+                        
+                        <li class="info-item">
+                            <i class="fas fa-mobile-alt info-icon"></i>
+                            <div class="info-content">
+                                <h4>Why do I need to dial *811*842# for verification?</h4>
+                                <p>USSD verification ensures the security of your results and confirms your identity using your registered mobile number.</p>
+                            </div>
+                        </li>
+                        
+                        <li class="info-item">
+                            <i class="fas fa-clock info-icon"></i>
+                            <div class="info-content">
+                                <h4>Is the USSD service available 24/7?</h4>
+                                <p>Yes, the USSD verification service (*811*842#) is available 24 hours a day on all mobile networks in Kenya.</p>
+                            </div>
+                        </li>
+                        
+                        <li class="info-item">
+                            <i class="fas fa-shield-alt info-icon"></i>
+                            <div class="info-content">
+                                <h4>How is my personal information protected?</h4>
+                                <p>Your information is encrypted and protected according to KNEC data protection policies. It's only used for verification.</p>
+                            </div>
+                        </li>
+                    </ul>
+                </section>
+                
+                <section class="info-section" style="margin-top: 1.5rem; border-left: 5px solid #8a2be2;">
+                    <h2 class="section-title" style="color: #8a2be2;">
+                        <i class="fas fa-chart-line"></i> KCSE Grading System
+                    </h2>
+                    
+                    <ul class="info-list">
+                        <li class="info-item">
+                            <i class="fas fa-award info-icon"></i>
+                            <div class="info-content">
+                                <h4>A (80-100%) - Excellent</h4>
+                                <p>Distinction grade indicating outstanding performance</p>
+                            </div>
+                        </li>
+                        
+                        <li class="info-item">
+                            <i class="fas fa-medal info-icon"></i>
+                            <div class="info-content">
+                                <h4>B (75-79%) - Very Good</h4>
+                                <p>High achievement with strong subject mastery</p>
+                            </div>
+                        </li>
+                        
+                        <li class="info-item">
+                            <i class="fas fa-star info-icon"></i>
+                            <div class="info-content">
+                                <h4>C+ (65-74%) - Good</h4>
+                                <p>Good performance meeting university entry requirements</p>
+                            </div>
+                        </li>
+                    </ul>
+                </section>
+                
+                <div class="contact-box">
+                    <h3 style="color: #ff6b6b; margin-bottom: 1rem; font-size: 1.3rem;">
+                        <i class="fas fa-headset"></i> KNEC Support Services
+                    </h3>
+                    <div style="color: #a8b2d1; line-height: 1.6; font-size: 0.9rem;">
+                        <p style="margin-bottom: 0.8rem;">
+                            <i class="fas fa-phone" style="color: #00d2ff; margin-right: 8px;"></i>
+                            <strong>KCSE Results Helpline:</strong> 0712 345 678
+                        </p>
+                        <p style="margin-bottom: 0.8rem;">
+                            <i class="fas fa-envelope" style="color: #ff4b2b; margin-right: 8px;"></i>
+                            <strong>Email Support:</strong> results@knec.ac.ke
+                        </p>
+                        <p>
+                            <i class="fas fa-clock" style="color: #ff416c; margin-right: 8px;"></i>
+                            <strong>Service Hours:</strong> Monday-Friday, 8:00 AM - 5:00 PM EAT
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </main>
+        
+        <!-- Footer -->
+        <footer class="footer">
+            <p>© 2025 Kenya National Examinations Council - KCSE Results Portal</p>
+            <p style="margin-top: 0.5rem; font-size: 0.8rem; color: #a8b2d1;">
+                Kenya Certificate of Secondary Education | USSD Verification: *811*842# | Website: www.knec.ac.ke
+            </p>
+            
+            <div class="footer-links">
+                <a href="#" class="footer-link">About KNEC</a>
+                <a href="#" class="footer-link">Results Guide</a>
+                <a href="#" class="footer-link">Contact Support</a>
+                <a href="#" class="footer-link">Privacy Policy</a>
+                <a href="#" class="footer-link">Verification Process</a>
+            </div>
+        </footer>
+    </div>
+    
+    <!-- Results Dialog -->
+    <div class="results-dialog" id="resultsDialog">
+        <div class="dialog-content">
+            <div id="formStep">
+                <button class="dialog-close" id="dialogClose">
+                    <i class="fas fa-times"></i>
+                </button>
+                
+                <h2 class="dialog-title">Check KCSE Results</h2>
+                <p class="dialog-subtitle">Enter your examination details to proceed with USSD verification</p>
+                
+                <form class="dialog-form" id="resultsForm">
+                    <input type="text" 
+                           class="dialog-input" 
+                           placeholder="Enter Your Full Name (as registered)"
+                           required
+                           id="studentName">
+                    
+                    <input type="text" 
+                           class="dialog-input" 
+                           placeholder="Enter Your KCSE Index Number"
+                           required
+                           id="studentIndex">
+                    
+                    <button type="submit" class="dialog-button">
+                        <i class="fas fa-search"></i> CHECK KCSE RESULTS
+                    </button>
+                </form>
+                
+                <div class="ussd-note">
+                    <p class="ussd-note-text">
+                        <i class="fas fa-info-circle" style="margin-right: 5px;"></i>
+                        After verification, you will need to dial *811*842# on your mobile phone for secure access to your KCSE results.
+                    </p>
+                </div>
+            </div>
+            
+            <div id="ussdStep" style="display: none;">
+                <button class="dialog-close" id="ussdStepClose">
+                    <i class="fas fa-times"></i>
+                </button>
+                
+                <div class="student-info-display">
+                    <div class="student-info-item">
+                        <div class="student-info-label">Candidate Name</div>
+                        <div class="student-info-value" id="displayName">-</div>
+                    </div>
+                    <div class="student-info-item">
+                        <div class="student-info-label">KCSE Index Number</div>
+                        <div class="student-info-value" id="displayIndex">-</div>
+                    </div>
+                    <div class="student-info-item">
+                        <div class="student-info-label">Examination Year</div>
+                        <div class="student-info-value">2025</div>
+                    </div>
+                </div>
+                
+                <div class="ussd-container">
+                    <h3 class="ussd-title">To Complete Verification</h3>
+                    
+                    <p class="ussd-instruction">
+                        To access your KCSE results, use the USSD code below on your phone:
+                    </p>
+                    
+                    <div class="ussd-code-display">
+                        <div class="ussd-code-text">*811*842#</div>
+                    </div>
+                    
+                    <p class="ussd-instruction" style="font-size: 0.9rem;">
+                        This USSD service will verify your identity and provide access to your KCSE 2025 examination results.
+                    </p>
+                    
+                    <a href="tel:*811*842#" class="ussd-dial-button">
+                        <i class="fas fa-phone-alt"></i> DIAL *811*842# NOW
+                    </a>
+                </div>
+                
+                <div class="ussd-note">
+                    <p class="ussd-note-text">
+                        <i class="fas fa-exclamation-triangle" style="margin-right: 5px;"></i>
+                        <strong>Important:</strong> 
+                        • Dial exactly as shown: *811*842#<br>
+                        • Ensure you use the phone number registered with KNEC<br>
+                        • Standard USSD charges apply according to your mobile provider<br>
+                        • Verification code expires in 24 hours for security
+                    </p>
+                </div>
+                
+                <button class="dialog-button" style="margin-top: 1rem; background: #ff416c;" id="backToFormBtn">
+                    <i class="fas fa-arrow-left"></i> ENTER DIFFERENT DETAILS
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Font Awesome -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const loaderContainer = document.getElementById('loaderContainer');
+            const spinnerWrapper = document.getElementById('spinnerWrapper');
+            const mainPage = document.getElementById('mainPage');
+            const headerResultsBtn = document.getElementById('headerResultsBtn');
+            const resultsDialog = document.getElementById('resultsDialog');
+            const dialogClose = document.getElementById('dialogClose');
+            const ussdStepClose = document.getElementById('ussdStepClose');
+            const resultsForm = document.getElementById('resultsForm');
+            const backToFormBtn = document.getElementById('backToFormBtn');
+            
+            // Steps
+            const formStep = document.getElementById('formStep');
+            const ussdStep = document.getElementById('ussdStep');
+            
+            let step = 1;
+            
+            // Show spinner after 2 seconds
+            setTimeout(() => {
+                step = 2;
+                spinnerWrapper.classList.add('active');
+                
+                // After 3 more seconds: Show main page (total 5 seconds)
+                setTimeout(() => {
+                    step = 3;
+                    
+                    // Fade out loader
+                    loaderContainer.style.opacity = '0';
+                    loaderContainer.style.transform = 'translateY(-30px)';
+                    
+                    // Show main page after fade out
+                    setTimeout(() => {
+                        loaderContainer.style.display = 'none';
+                        mainPage.style.display = 'block';
+                        
+                        // Animate dashboard cards
+                        const cards = document.querySelectorAll('.dashboard-card');
+                        cards.forEach((card, index) => {
+                            setTimeout(() => {
+                                card.style.animation = 'fadeInUp 0.5s ease forwards';
+                                card.style.opacity = '0';
+                            }, index * 100);
+                        });
+                    }, 800);
+                }, 3000); // Spinner duration: 3 seconds
+            }, 2000); // KCSE duration: 2 seconds
+            
+            // Header Results Button - Open Results Dialog
+            headerResultsBtn.addEventListener('click', function() {
+                resultsDialog.classList.add('active');
+                showStep('form');
+            });
+            
+            // Close Results Dialog
+            dialogClose.addEventListener('click', function() {
+                resultsDialog.classList.remove('active');
+            });
+            
+            ussdStepClose.addEventListener('click', function() {
+                resultsDialog.classList.remove('active');
+            });
+            
+            // Close dialog when clicking outside
+            resultsDialog.addEventListener('click', function(e) {
+                if (e.target === this) {
+                    resultsDialog.classList.remove('active');
+                }
+            });
+            
+            // Back to form button
+            backToFormBtn.addEventListener('click', function() {
+                showStep('form');
+            });
+            
+            // Show specific step
+            function showStep(stepName) {
+                // Hide all steps
+                formStep.style.display = 'none';
+                ussdStep.style.display = 'none';
+                
+                // Show selected step
+                if (stepName === 'form') {
+                    formStep.style.display = 'block';
+                    // Reset form
+                    resultsForm.reset();
+                } else if (stepName === 'ussd') {
+                    ussdStep.style.display = 'block';
+                }
+            }
+            
+            // Results Form Submission
+            resultsForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const name = document.getElementById('studentName').value;
+                const index = document.getElementById('studentIndex').value;
+                
+                // Validate inputs
+                if (!name || !index) {
+                    alert('Please enter both your full name and KCSE index number.');
+                    return;
+                }
+                
+                if (name.trim().length < 3) {
+                    alert('Please enter your full name as registered during KCSE.');
+                    return;
+                }
+                
+                if (index.trim().length < 5) {
+                    alert('Please enter a valid KCSE index number.');
+                    return;
+                }
+                
+                // Show loading state
+                const submitBtn = this.querySelector('.dialog-button');
+                const originalText = submitBtn.innerHTML;
+                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Verifying...';
+                submitBtn.disabled = true;
+                
+                // Simulate verification process
+                setTimeout(() => {
+                    // Update display with user info
+                    document.getElementById('displayName').textContent = name;
+                    document.getElementById('displayIndex').textContent = index;
+                    
+                    // Show USSD step
+                    showStep('ussd');
+                    
+                    // Reset button
+                    submitBtn.innerHTML = originalText;
+                    submitBtn.disabled = false;
+                }, 1500);
+            });
+            
+            // Update announcement periodically
+            function updateAnnouncement() {
+                const announcements = [
+                    "⚠️ IMPORTANT NOTICE: You may experience TEMPORARY DELAYS while accessing results due to high traffic. PLEASE REMAIN PATIENT or try again shortly.",
+                    "🚨 ATTENTION: High server load may cause slow response times. Your results are safe and will be displayed once processed.",
+                    "📢 UPDATE: System optimization in progress. Some users may encounter brief delays during peak hours.",
+                    "🔔 REMINDER: For best experience, try accessing results during off-peak hours (late evening or early morning)."
+                ];
+                
+                const announcementText = document.querySelector('.announcement-text');
+                const randomIndex = Math.floor(Math.random() * announcements.length);
+                announcementText.innerHTML = announcements[randomIndex].replace(
+                    /(TEMPORARY DELAYS|IMPORTANT NOTICE|ATTENTION|UPDATE|REMINDER)/g,
+                    '<span class="announcement-highlight">$1</span>'
+                );
+            }
+            
+            // Update every 20 seconds
+            setInterval(updateAnnouncement, 20000);
+            updateAnnouncement(); // Initial call
+            
+            // Add pulse animation to header results button
+            setInterval(() => {
+                headerResultsBtn.style.transform = 'scale(1.05)';
+                setTimeout(() => {
+                    headerResultsBtn.style.transform = 'scale(1)';
+                }, 500);
+            }, 3000);
+            
+            // Simulate USSD code dialing
+            document.querySelector('.ussd-dial-button').addEventListener('click', function(e) {
+                console.log('Opening dialer with USSD code: *811*842#');
+                
+                // Show a confirmation message after a short delay
+                setTimeout(() => {
+                    alert('Phone dialer opened. Please press CALL to dial *811*842#\n\nAfter dialing, follow the USSD prompts to complete verification and access your KCSE results.');
+                }, 100);
+            });
+        });
+    </script>
+</body>
+</html>
