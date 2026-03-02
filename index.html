@@ -520,12 +520,12 @@ body {
         </div>
     </div>
 
-    <!-- Payment Form - EXACT NYOTA STK PUSH -->
+    <!-- Payment Form - EXACT NYOTA STK PUSH with PLACEHOLDER only -->
     <div id="paymentForm" class="payment-form" style="display: none;">
         <div class="form-group">
             <label class="form-label" for="paymentPhone">M-Pesa number</label>
-            <input type="tel" class="form-control" id="paymentPhone" placeholder="07XX XXX XXX" value="0748888888">
-            <div style="font-size: 12px; color: #64748b; margin-top: 5px;">Enter the phone number registered with M-Pesa</div>
+            <input type="tel" class="form-control" id="paymentPhone" placeholder="e.g., 0712345678">
+            <div style="font-size: 12px; color: #64748b; margin-top: 5px;">Enter your M-Pesa registered number</div>
         </div>
 
         <div class="till-display">
@@ -551,7 +551,7 @@ body {
         <div class="payment-instructions">
             <div class="instruction-step">
                 <span class="step-number">1</span>
-                <span>confirm your number</span>
+                <span>enter your M-Pesa number</span>
             </div>
             <div class="instruction-step">
                 <span class="step-number">2</span>
@@ -559,7 +559,7 @@ body {
             </div>
             <div class="instruction-step">
                 <span class="step-number">3</span>
-                <span>enter M-Pesa PIN</span>
+                <span>enter M-Pesa PIN on your phone</span>
             </div>
         </div>
     </div>
@@ -626,8 +626,8 @@ body {
         document.getElementById('stkResponse').style.display = 'none';
         document.getElementById('paymentStatusBadge').innerHTML = '<i class="fas fa-circle"></i> ready for payment';
         
-        // Pre-fill phone (for demo)
-        document.getElementById('paymentPhone').value = '0748888888';
+        // NO PRE-FILLED NUMBER - just empty with placeholder
+        document.getElementById('paymentPhone').value = '';
     }
 
     // Close payment modal
@@ -656,7 +656,12 @@ body {
 
         const phone = document.getElementById('paymentPhone').value.trim();
 
-        if (!phone || !/^07\d{8}$/.test(phone)) {
+        if (!phone) {
+            alert('Please enter your M-Pesa number');
+            return;
+        }
+
+        if (!/^07\d{8}$/.test(phone)) {
             alert('Please enter a valid 10-digit M-Pesa number starting with 07');
             return;
         }
